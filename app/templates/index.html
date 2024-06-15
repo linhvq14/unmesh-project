@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Run Scripts and View Info</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+<nav class="main-menu">
+    <ul>
+        <li>
+            <a href="#">
+                <i class="fa fa-home fa-2x"></i>
+                <span class="nav-text">Home</span>
+            </a>
+        </li>
+        <li class="has-subnav">
+            <a href="#" id="runScriptNav">
+                <i class="fa fa-file fa-2x"></i>
+                <span class="nav-text">Run Script</span>
+            </a>
+        </li>
+        <li class="has-subnav">
+            <a href="#" id="createCronNav">
+                <i class="fa fa-calendar fa-2x"></i>
+                <span class="nav-text">Create Cron Job</span>
+            </a>
+        </li>
+        <li class="has-subnav">
+            <a href="#" id="viewInfoNav">
+                <i class="fa fa-database fa-2x"></i>
+                <span class="nav-text">Query</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div class="content" id="content">
+    <div class="container" id="runScriptContainer">
+        <h1>Run Shell Scripts</h1>
+        <select id="scriptSelect">
+            {% for script in scripts %}
+                <option value="{{ script }}">{{ script }}</option>
+            {% endfor %}
+        </select>
+        <button id="runScriptButton">Run Script</button>
+        <div id="output" class="terminal-out"></div>
+    </div>
+
+    <div class="container" id="createCronContainer">
+        <div id="cronJobSection">
+            <h2>Schedule a Cron Job</h2>
+            <form id="cronJobForm">
+                <label for="scriptPath">Script Path:</label>
+                <input type="text" id="scriptPath" name="scriptPath" required>
+                <label for="cronTime">Cron Time (min hour day month day_of_week):</label>
+                <input type="text" id="cronTime" name="cronTime" required>
+                <button type="submit">Create Cron Job</button>
+            </form>
+            <div id="cronOutput" class="terminal-out"></div>
+        </div>
+    </div>
+
+    <div class="container" id="viewInfoContainer">
+        <h1>Get Info</h1>
+        <button id="getDeviceInfoButton">Get Device Info</button>
+        <button id="getUserInfoButton">Get User Info</button>
+        <table id="infoOutput">
+            <thead>
+            <tr></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="static/js/script.js"></script>
+</body>
+</html>
