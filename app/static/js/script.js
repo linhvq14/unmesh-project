@@ -4,9 +4,11 @@ $(document).ready(function () {
     const $runScriptNav = $('#runScriptNav');
     const $viewInfoNav = $('#viewInfoNav');
     const $createCronNav = $('#createCronNav');
+    const $viewStreamNav = $('#viewStreamNav');
     const $runScriptContainer = $('#runScriptContainer');
     const $createCronContainer = $('#createCronContainer');
     const $viewInfoContainer = $('#viewInfoContainer');
+    const $viewStreamContainer = $('#viewStreamContainer');
     const $content = $('#content');
     const $output = $('#output');
     const $infoOutput = $('#infoOutput');
@@ -29,12 +31,14 @@ $(document).ready(function () {
         $runScriptContainer.removeClass('active');
         $createCronContainer.removeClass('active');
         $viewInfoContainer.removeClass('active');
+        $viewStreamContainer.removeClass('active');
         $activeContainer.addClass('active');
     };
 
     $runScriptNav.on('click', () => navClickHandler($runScriptContainer));
     $viewInfoNav.on('click', () => navClickHandler($viewInfoContainer));
     $createCronNav.on('click', () => navClickHandler($createCronContainer));
+    $viewStreamNav.on('click', () => navClickHandler($viewStreamContainer));
 
     // Run script
     $('#runScriptButton').on('click', function () {

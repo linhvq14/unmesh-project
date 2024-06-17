@@ -1,8 +1,8 @@
 import os
 import re
 import subprocess
-
-from flask import Blueprint, render_template, request, jsonify
+import cv2
+from flask import Blueprint, render_template, request, jsonify, Response
 
 from app.models import Device, User
 
@@ -10,6 +10,19 @@ main = Blueprint('main', __name__)
 
 # Define the directory containing your scripts
 SCRIPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
+
+
+def generate_frames():
+    camera = cv2.VideoCapture(0)
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 @main.route('/')
@@ -67,3 +80,8 @@ def create_cron_job():
         return jsonify({"message": "Cron job created successfully."})
     except subprocess.CalledProcessError as e:
         return jsonify({"message": f"Failed to create cron job: {e}"}), 500
+
+
+@main.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
