@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Device Info{% endblock %}
+
+{% block content %}
+    <div class="container active" id="viewInfoContainer">
+        <h1>Live Stream</h1>
+        <img id="videoStream" src="{{ url_for('main.video_feed') }}" alt="Video Stream">
+        <table id="infoOutput">
+            <thead>
+            <tr></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <table id="userInfoOutput">
+            <thead>
+            <tr></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script src="{{ url_for('static', filename='js/device_info.js') }}"></script>
+{% endblock %}

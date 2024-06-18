@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Setup{% endblock %}
+
+{% block content %}
+<div class="container active" id="setupContainer">
+    <div id="setupContent">
+        <h1>Run Shell Scripts</h1>
+        <select id="scriptSelect">
+            {% for script in scripts %}
+                <option value="{{ script }}">{{ script }}</option>
+            {% endfor %}
+        </select>
+        <button id="runScriptButton">Run Script</button>
+        <div id="output" class="terminal-out"></div>
+    </div>
+
+    <div id="cronJobSection">
+        <h1>Schedule a Cron Job</h1>
+        <form id="cronJobForm">
+            <label for="scriptPath">Script Path:</label>
+            <input type="text" id="scriptPath" name="scriptPath" required>
+            <label for="cronTime">Cron Time (min hour day month day_of_week):</label>
+            <input type="text" id="cronTime" name="cronTime" required>
+            <button type="submit">Create Cron Job</button>
+        </form>
+        <div id="cronOutput" class="terminal-out"></div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/setup.js') }}"></script>
+{% endblock %}

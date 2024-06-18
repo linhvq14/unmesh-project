@@ -1,14 +1,14 @@
 import os
 import re
 import subprocess
+
 import cv2
-from flask import Blueprint, render_template, request, jsonify, Response
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
 
 from app.models import Device, User
 
 main = Blueprint('main', __name__)
 
-# Define the directory containing your scripts
 SCRIPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
 
 
@@ -27,8 +27,20 @@ def generate_frames():
 
 @main.route('/')
 def index():
+    return redirect(url_for('main.device_info'))
+
+
+@main.route('/device_info')
+def device_info():
+    return render_template('device_info.html')
+
+
+@main.route('/setup', methods=['GET'])
+def setup():
+    if 'logged_in' not in session:
+        return redirect(url_for('main.login'))
     scripts = [f for f in os.listdir(SCRIPT_DIR) if os.path.isfile(os.path.join(SCRIPT_DIR, f))]
-    return render_template('index.html', scripts=scripts)
+    return render_template('setup.html', scripts=scripts)
 
 
 @main.route('/api/devices', methods=['GET'])
@@ -43,20 +55,23 @@ def get_users():
     return jsonify([user.to_dict() for user in users])
 
 
-@main.route('/run_script', methods=['POST'])
-def run_script():
-    script_name = request.json.get('script_name')
-    if not script_name or not os.path.isfile(os.path.join(SCRIPT_DIR, script_name)):
-        return jsonify({"error": "Script not found"}), 404
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['password'] == 'BGSw}:.uDYvCUm<2@#=J$j':  # replace with your password logic
+            session['logged_in'] = True
+            session.permanent = True
+            return redirect(url_for('main.setup'))
+        else:
+            error = 'Invalid password'
+    return render_template('login.html', error=error)
 
-    script_path = os.path.join(SCRIPT_DIR, script_name)
-    result = subprocess.run([script_path], capture_output=True, text=True, shell=True)
 
-    combined_result = {
-        "output": result.stdout + "\n" + result.stderr
-    }
-
-    return jsonify(combined_result)
+@main.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('main.login'))
 
 
 @main.route('/create_cron_job', methods=['POST'])
@@ -84,4 +99,6 @@ def create_cron_job():
 
 @main.route('/video_feed')
 def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    pass
+    # return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+# API routes and other functions remain the same

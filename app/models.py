@@ -21,6 +21,8 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     last_name = db.Column(db.String(64), index=True, unique=True)
+    phone_number = db.Column(db.String(64), index=True, unique=True)
+    email = db.Column(db.String(64), index=True, unique=True)
 
     # Add other columns relevant to the user table
 
@@ -28,6 +30,8 @@ class User(db.Model):
         return {
             'user_id': self.user_id,
             'name': self.name,
+            'phone_number': self.phone_number,
+            'email': self.email,
             'last_name': self.last_name,
             # Add other fields here
         }
