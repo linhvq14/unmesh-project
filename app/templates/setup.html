@@ -4,18 +4,39 @@
 
 {% block content %}
 <div class="container active" id="setupContainer">
-    <div id="setupContent">
-        <h1>Run Shell Scripts</h1>
-        <select id="scriptSelect">
-            {% for script in scripts %}
-                <option value="{{ script }}">{{ script }}</option>
-            {% endfor %}
-        </select>
-        <button id="runScriptButton">Run Script</button>
-        <div id="output" class="terminal-out"></div>
+    <div id="setupButtons">
+        <button id="createDeviceButton">Create Device</button>
+        <button id="startServicesButton">Start Services</button>
+        <button id="stopServicesButton">Stop Services</button>
+        <button id="changeSpeedButton">Change Speed</button>
+        <button id="createCronButton">Create Cron Job</button>
     </div>
 
-    <div id="cronJobSection">
+    <div id="createDeviceContainer" class="actionContainer" style="display: none;">
+        <h1>Create Device</h1>
+        <!-- Add form or content for creating a device here -->
+        <div id="createDeviceOutput" class="terminal-out"></div>
+    </div>
+
+    <div id="startServicesContainer" class="actionContainer" style="display: none;">
+        <h1>Start Services</h1>
+        <button id="runStartServices">Start All Processes</button>
+        <div id="startServicesOutput" class="terminal-out"></div>
+    </div>
+
+    <div id="stopServicesContainer" class="actionContainer" style="display: none;">
+        <h1>Stop Services</h1>
+        <button id="runStopServices">Stop All Processes</button>
+        <div id="stopServicesOutput" class="terminal-out"></div>
+    </div>
+
+    <div id="changeSpeedContainer" class="actionContainer" style="display: none;">
+        <h1>Change Speed</h1>
+        <!-- Add form or content for changing speed here -->
+        <div id="changeSpeedOutput" class="terminal-out"></div>
+    </div>
+
+    <div id="createCronContainer" class="actionContainer" style="display: none;">
         <h1>Schedule a Cron Job</h1>
         <form id="cronJobForm">
             <label for="scriptPath">Script Path:</label>

@@ -3,7 +3,7 @@ import re
 import subprocess
 
 import cv2
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, Response
 
 from app.models import Device, User
 
@@ -99,6 +99,25 @@ def create_cron_job():
 
 @main.route('/video_feed')
 def video_feed():
-    pass
-    # return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 # API routes and other functions remain the same
+
+@main.route('/run_script', methods=['POST'])
+def run_script():
+    data = request.json
+    script_name = data.get('script_name')
+
+    if not script_name:
+        return jsonify({"error": "No script name provided."}), 400
+
+    script_path = os.path.join(SCRIPT_DIR, script_name)
+    if not os.path.isfile(script_path):
+        return jsonify({"error": "Script file does not exist."}), 400
+
+    try:
+        result = subprocess.run([script_path], capture_output=True, text=True, check=True)
+        return jsonify({"output": result.stdout})
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": f"Failed to run script: {e.stderr}"}), 500

@@ -385,3 +385,60 @@ nav ul, nav li {
 .login-container button {
     padding: 1px 10px;
 }
+
+/* Button styles */
+#setupButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#setupButtons button {
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+
+/* Action container styles */
+.actionContainer {
+    display: none;
+    margin-top: 20px;
+}
+
+.actionContainer form {
+    display: flex;
+    flex-direction: column;
+}
+
+.actionContainer form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.actionContainer form input {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    #setupButtons {
+        flex-direction: column;
+    }
+
+    #setupButtons button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .actionContainer {
+        margin-top: 20px;
+    }
+}
