@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import subprocess
@@ -11,6 +12,9 @@ from app.models import Device, User, Configure
 main = Blueprint('main', __name__)
 
 SCRIPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def generate_frames():
@@ -89,7 +93,7 @@ def create_cron_job():
     if not cron_time_pattern.match(cron_time):
         return jsonify({"message": "Cron time format is invalid."}), 400
 
-    cron_job = f"{cron_time} {script_path}"
+    cron_job = f"{cron_time} /usr/bin/python3 {script_path}"
 
     try:
         subprocess.run(f"(crontab -l; echo '{cron_job}') | crontab -", shell=True, check=True, executable='/bin/bash')
@@ -154,33 +158,29 @@ def connect_wifi():
     password = data.get('password')
 
     if not ssid or not password:
+        logger.error("SSID and password are required.")
         return jsonify({"message": "SSID and password are required."}), 400
 
-    wpa_supplicant_conf = f"""
-    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-    update_config=1
-    country=US
-
-    network={{
-        ssid="{ssid}"
-        psk="{password}"
-        key_mgmt=WPA-PSK
-    }}
-    """
-
     try:
-        with open('/tmp/wpa_supplicant.conf', 'w') as f:
-            f.write(wpa_supplicant_conf)
+        # Run nmcli command to connect to WiFi
+        command = ["sudo", "nmcli", "dev", "wifi", "connect", ssid, "password", password]
+        logger.info(f"Running command: {' '.join(command)}")
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
 
-        subprocess.run(['sudo', 'mv', '/tmp/wpa_supplicant.conf', '/etc/wpa_supplicant/wpa_supplicant.conf'],
-                       check=True)
-        subprocess.run(['sudo', 'wpa_cli', '-i', 'wlan0', 'reconfigure'], check=True)
-
-        return jsonify({"message": "WiFi connection attempt in progress."})
+        if result.returncode == 0:
+            logger.info("WiFi connected successfully.")
+            return jsonify({"message": "WiFi connected successfully."})
+        else:
+            error_message = result.stderr.strip()
+            if "no network with SSID" in error_message:
+                logger.error("SSID not found.")
+                return jsonify({"message": "SSID not found."}), 404
+            else:
+                logger.error(f"Failed to connect to WiFi: {error_message}")
+                return jsonify({"message": f"Failed to connect to WiFi: {error_message}"}), 500
     except subprocess.CalledProcessError as e:
-        return jsonify({"message": f"Failed to connect to WiFi: {e}"}), 500
-    except Exception as e:
-        return jsonify({"message": f"An error occurred: {e}"}), 500
+        logger.error(f"Failed to connect to WiFi: {e.stderr}")
+        return jsonify({"message": f"Failed to connect to WiFi: {e.stderr}"}), 500
 
 
 @main.route('/create_device', methods=['POST'])

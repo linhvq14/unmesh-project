@@ -1,10 +1,18 @@
 $(document).ready(function () {
-    // const $createDeviceOutput = $('#createDeviceOutput');
     const $startServicesOutput = $('#startServicesOutput');
     const $stopServicesOutput = $('#stopServicesOutput');
-    // const $changeSpeedOutput = $('#changeSpeedOutput');
     const $connectWifiOutput = $('#connectWifiOutput');
     const $cronOutput = $('#cronOutput');
+
+    function getCurrentTimestamp() {
+        const now = new Date();
+        return now.toLocaleString();
+    }
+
+    function appendOutput($element, message) {
+        const timestamp = getCurrentTimestamp();
+        $element.append(`<div>[${timestamp}] ${message}</div>`);
+    }
 
     // Show the correct container when a button is clicked
     $('#createDeviceButton').on('click', function () {
@@ -39,7 +47,7 @@ $(document).ready(function () {
 
     // Run start services script
     $('#runStartServices').on('click', function () {
-        $startServicesOutput.text('Starting services...');
+        appendOutput($startServicesOutput, 'Starting services...');
 
         $.ajax({
             url: '/run_script',
@@ -47,17 +55,17 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({script_name: 'start_all_processes.sh'}),
             success: function (data) {
-                $startServicesOutput.text(data.error ? 'Error: ' + data.error : data.output);
+                appendOutput($startServicesOutput, data.error ? 'Error: ' + data.error : data.output);
             },
             error: function (error) {
-                $startServicesOutput.text('An error occurred: ' + error.statusText);
+                appendOutput($startServicesOutput, 'An error occurred: ' + error.statusText);
             }
         });
     });
 
     // Run stop services script
     $('#runStopServices').on('click', function () {
-        $stopServicesOutput.text('Stopping services...');
+        appendOutput($stopServicesOutput, 'Stopping services...');
 
         $.ajax({
             url: '/run_script',
@@ -65,10 +73,10 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({script_name: 'stop_all_processes.sh'}),
             success: function (data) {
-                $stopServicesOutput.text(data.error ? 'Error: ' + data.error : data.output);
+                appendOutput($stopServicesOutput, data.error ? 'Error: ' + data.error : data.output);
             },
             error: function (error) {
-                $stopServicesOutput.text('An error occurred: ' + error.statusText);
+                appendOutput($stopServicesOutput, 'An error occurred: ' + error.statusText);
             }
         });
     });
@@ -85,10 +93,10 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({scriptPath, cronTime}),
             success: function (data) {
-                $cronOutput.text(data.message);
+                appendOutput($cronOutput, data.message);
             },
             error: function (error) {
-                $cronOutput.text('An error occurred: ' + error.statusText);
+                appendOutput($cronOutput, 'An error occurred: ' + error.statusText);
             }
         });
     });
@@ -129,10 +137,10 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: JSON.stringify({ssid: ssid, password: password}),
             success: function (data) {
-                $connectWifiOutput.text(data.message);
+                appendOutput($connectWifiOutput, data.message);
             },
             error: function (error) {
-                $connectWifiOutput.text('An error occurred: ' + error.statusText);
+                appendOutput($connectWifiOutput, 'An error occurred: ' + error.statusText);
             }
         });
     });
