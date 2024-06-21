@@ -5,7 +5,8 @@ import subprocess
 import cv2
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, Response
 
-from app.models import Device, User
+from app import db
+from app.models import Device, User, Configure
 
 main = Blueprint('main', __name__)
 
@@ -99,6 +100,7 @@ def create_cron_job():
 
 @main.route('/video_feed')
 def video_feed():
+    # pass
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -121,3 +123,75 @@ def run_script():
         return jsonify({"output": result.stdout})
     except subprocess.CalledProcessError as e:
         return jsonify({"error": f"Failed to run script: {e.stderr}"}), 500
+
+
+@main.route('/change_speed', methods=['POST'])
+def change_speed():
+    data = request.get_json()
+    new_speed = data.get('speed')
+
+    if new_speed is None:
+        return jsonify({'error': 'Speed not provided'}), 400
+
+    config_key = 'speed'
+
+    config = Configure.query.filter_by(config_key=config_key).first()
+    if config:
+        config.config_value = new_speed
+        db.session.commit()
+    else:
+        config = Configure(config_key=config_key, config_value=new_speed)
+        db.session.add(config)
+        db.session.commit()
+
+    return jsonify({'message': 'Speed updated successfully'}), 200
+
+
+@main.route('/connect_wifi', methods=['POST'])
+def connect_wifi():
+    data = request.json
+    ssid = data.get('ssid')
+    password = data.get('password')
+
+    if not ssid or not password:
+        return jsonify({"message": "SSID and password are required."}), 400
+
+    wpa_supplicant_conf = f"""
+    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+    update_config=1
+    country=US
+
+    network={{
+        ssid="{ssid}"
+        psk="{password}"
+        key_mgmt=WPA-PSK
+    }}
+    """
+
+    try:
+        with open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as f:
+            f.write(wpa_supplicant_conf)
+
+        subprocess.run(['sudo', 'wpa_cli', '-i', 'wlan0', 'reconfigure'], check=True)
+
+        return jsonify({"message": "WiFi connection attempt in progress."})
+    except Exception as e:
+        return jsonify({"message": f"Failed to connect to WiFi: {e}"}), 500
+
+
+@main.route('/create_device', methods=['POST'])
+def create_device():
+    data = request.json
+    device_id = data.get('deviceId')
+    # device_type = data.get('deviceType')
+
+    if not device_id:
+        return jsonify({"message": "Device id and type are required."}), 400
+
+    try:
+        new_device = Device(device_id=device_id)
+        db.session.add(new_device)
+        db.session.commit()
+        return jsonify({"message": "Device created successfully."})
+    except Exception as e:
+        return jsonify({"message": f"Failed to create device: {e}"}), 500

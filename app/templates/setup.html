@@ -3,50 +3,75 @@
 {% block title %}Setup{% endblock %}
 
 {% block content %}
-<div class="container active" id="setupContainer">
-    <div id="setupButtons">
-        <button id="createDeviceButton">Create Device</button>
-        <button id="startServicesButton">Start Services</button>
-        <button id="stopServicesButton">Stop Services</button>
-        <button id="changeSpeedButton">Change Speed</button>
-        <button id="createCronButton">Create Cron Job</button>
-    </div>
+    <div class="container active" id="setupContainer">
+        <div id="setupButtons">
+            <button id="createDeviceButton">Create Device</button>
+            <button id="startServicesButton">Start Services</button>
+            <button id="stopServicesButton">Stop Services</button>
+            <button id="changeSpeedButton">Change Speed</button>
+            <button id="createCronButton">Create Cron Job</button>
+            <button id="connectWifiButton">Connect to WiFi</button>
+        </div>
 
-    <div id="createDeviceContainer" class="actionContainer" style="display: none;">
-        <h1>Create Device</h1>
-        <!-- Add form or content for creating a device here -->
-        <div id="createDeviceOutput" class="terminal-out"></div>
-    </div>
+        <div id="createDeviceContainer" class="actionContainer" style="display: none;">
+            <h1>Create Device</h1>
+            <form id="createDeviceForm">
+                <label for="deviceId">Device ID:</label>
+                <input type="text" id="deviceId" name="deviceId" required>
+{#                <label for="deviceType">Device Type:</label>#}
+{#                <input type="text" id="deviceType" name="deviceType" required>#}
+                <button type="submit">Create Device</button>
+            </form>
+        </div>
 
-    <div id="startServicesContainer" class="actionContainer" style="display: none;">
-        <h1>Start Services</h1>
-        <button id="runStartServices">Start All Processes</button>
-        <div id="startServicesOutput" class="terminal-out"></div>
-    </div>
 
-    <div id="stopServicesContainer" class="actionContainer" style="display: none;">
-        <h1>Stop Services</h1>
-        <button id="runStopServices">Stop All Processes</button>
-        <div id="stopServicesOutput" class="terminal-out"></div>
-    </div>
+        <div id="startServicesContainer" class="actionContainer" style="display: none;">
+            <h1>Start Services</h1>
+            <button id="runStartServices">Start All Processes</button>
+            <div id="startServicesOutput" class="terminal-out"></div>
+        </div>
 
-    <div id="changeSpeedContainer" class="actionContainer" style="display: none;">
-        <h1>Change Speed</h1>
-        <!-- Add form or content for changing speed here -->
-        <div id="changeSpeedOutput" class="terminal-out"></div>
-    </div>
+        <div id="stopServicesContainer" class="actionContainer" style="display: none;">
+            <h1>Stop Services</h1>
+            <button id="runStopServices">Stop All Processes</button>
+            <div id="stopServicesOutput" class="terminal-out"></div>
+        </div>
 
-    <div id="createCronContainer" class="actionContainer" style="display: none;">
-        <h1>Schedule a Cron Job</h1>
-        <form id="cronJobForm">
-            <label for="scriptPath">Script Path:</label>
-            <input type="text" id="scriptPath" name="scriptPath" required>
-            <label for="cronTime">Cron Time (min hour day month day_of_week):</label>
-            <input type="text" id="cronTime" name="cronTime" required>
-            <button type="submit">Create Cron Job</button>
-        </form>
-        <div id="cronOutput" class="terminal-out"></div>
+        <div id="changeSpeedContainer" class="actionContainer" style="display: none;">
+            <h1>Change Speed</h1>
+            <!-- Add form or content for changing speed here -->
+            <form id="changeSpeedForm">
+                <label for="speedValue">Speed:</label>
+                <input type="number" id="speedValue" name="speedValue" required>
+                <button type="submit">Update Speed</button>
+            </form>
+            {#            <div id="changeSpeedOutput" class="terminal-out"></div>#}
+        </div>
+
+        <div id="createCronContainer" class="actionContainer" style="display: none;">
+            <h1>Schedule a Cron Job</h1>
+            <form id="cronJobForm">
+                <label for="scriptPath">Script Path:</label>
+                <input type="text" id="scriptPath" name="scriptPath" required>
+                <label for="cronTime">Cron Time (min hour day month day_of_week):</label>
+                <input type="text" id="cronTime" name="cronTime" required>
+                <button type="submit">Create Cron Job</button>
+            </form>
+            <div id="cronOutput" class="terminal-out"></div>
+        </div>
+        <!-- Add this inside the container for the setup page -->
+        <div id="connectWifiContainer" class="actionContainer" style="display: none;">
+            <h1>Connect to WiFi</h1>
+            <form id="connectWifiForm">
+                <label for="ssid">SSID:</label>
+                <input type="text" id="ssid" name="ssid" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Connect</button>
+            </form>
+            <div id="connectWifiOutput" class="terminal-out"></div>
+        </div>
+
     </div>
-</div>
-<script src="{{ url_for('static', filename='js/setup.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/setup.js') }}"></script>
 {% endblock %}

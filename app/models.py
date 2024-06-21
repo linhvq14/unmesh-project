@@ -1,10 +1,11 @@
+from datetime import datetime
+
 from . import db
 
 
 class Device(db.Model):
     __tablename__ = 'device'
     device_id = db.Column(db.Integer, primary_key=True)
-    # name = db.Column(db.String(64), index=True, unique=True)
 
     # Add other columns relevant to the device table
 
@@ -35,3 +36,13 @@ class User(db.Model):
             'last_name': self.last_name,
             # Add other fields here
         }
+
+
+class Configure(db.Model):
+    __tablename__ = 'configure'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    config_key = db.Column(db.String(255), unique=True, nullable=False)
+    config_value = db.Column(db.Text, nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

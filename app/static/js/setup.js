@@ -1,8 +1,9 @@
 $(document).ready(function () {
-    const $createDeviceOutput = $('#createDeviceOutput');
+    // const $createDeviceOutput = $('#createDeviceOutput');
     const $startServicesOutput = $('#startServicesOutput');
     const $stopServicesOutput = $('#stopServicesOutput');
-    const $changeSpeedOutput = $('#changeSpeedOutput');
+    // const $changeSpeedOutput = $('#changeSpeedOutput');
+    const $connectWifiOutput = $('#connectWifiOutput');
     const $cronOutput = $('#cronOutput');
 
     // Show the correct container when a button is clicked
@@ -31,6 +32,11 @@ $(document).ready(function () {
         $('#createCronContainer').show();
     });
 
+    $('#connectWifiButton').on('click', function () {
+        $('.actionContainer').hide();
+        $('#connectWifiContainer').show();
+    });
+
     // Run start services script
     $('#runStartServices').on('click', function () {
         $startServicesOutput.text('Starting services...');
@@ -39,7 +45,7 @@ $(document).ready(function () {
             url: '/run_script',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ script_name: 'start_all_processes.sh' }),
+            data: JSON.stringify({script_name: 'start_all_processes.sh'}),
             success: function (data) {
                 $startServicesOutput.text(data.error ? 'Error: ' + data.error : data.output);
             },
@@ -57,7 +63,7 @@ $(document).ready(function () {
             url: '/run_script',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ script_name: 'stop_all_processes.sh' }),
+            data: JSON.stringify({script_name: 'stop_all_processes.sh'}),
             success: function (data) {
                 $stopServicesOutput.text(data.error ? 'Error: ' + data.error : data.output);
             },
@@ -77,7 +83,7 @@ $(document).ready(function () {
             url: '/create_cron_job',
             method: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ scriptPath, cronTime }),
+            data: JSON.stringify({scriptPath, cronTime}),
             success: function (data) {
                 $cronOutput.text(data.message);
             },
@@ -86,4 +92,73 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Handle change speed
+    $('#changeSpeedForm').submit(function (event) {
+        event.preventDefault();
+        const newSpeed = $('#speedValue').val();
+        if (newSpeed === "") {
+            alert("Please enter a speed value.");
+            return;
+        }
+
+        $.ajax({
+            url: '/change_speed',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({speed: newSpeed}),
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (xhr, status, error) {
+                var err = JSON.parse(xhr.responseText);
+                alert(err.error);
+            }
+        });
+    });
+
+    // Handle connect to Wi-Fi
+    $('#connectWifiForm').submit(function (event) {
+        event.preventDefault();
+        const ssid = $('#ssid').val();
+        const password = $('#password').val();
+
+        $.ajax({
+            url: '/connect_wifi',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ssid: ssid, password: password}),
+            success: function (data) {
+                $connectWifiOutput.text(data.message);
+            },
+            error: function (error) {
+                $connectWifiOutput.text('An error occurred: ' + error.statusText);
+            }
+        });
+    });
+
+    // Handle create device
+    $('#createDeviceForm').submit(function (event) {
+        event.preventDefault();
+        const deviceId = $('#deviceId').val();
+        if (deviceId === "") {
+            alert("Please enter a Device ID value.");
+            return;
+        }
+
+        $.ajax({
+            url: '/create_device',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({deviceId: deviceId}),
+            success: function (response) {
+                alert(response.message);
+            },
+            error: function (xhr, status, error) {
+                var err = JSON.parse(xhr.responseText);
+                alert(err.error);
+            }
+        });
+    });
+
 });
