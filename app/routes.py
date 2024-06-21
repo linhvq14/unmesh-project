@@ -169,14 +169,18 @@ def connect_wifi():
     """
 
     try:
-        with open('/etc/wpa_supplicant/wpa_supplicant.conf', 'w') as f:
+        with open('/tmp/wpa_supplicant.conf', 'w') as f:
             f.write(wpa_supplicant_conf)
 
+        subprocess.run(['sudo', 'mv', '/tmp/wpa_supplicant.conf', '/etc/wpa_supplicant/wpa_supplicant.conf'],
+                       check=True)
         subprocess.run(['sudo', 'wpa_cli', '-i', 'wlan0', 'reconfigure'], check=True)
 
         return jsonify({"message": "WiFi connection attempt in progress."})
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         return jsonify({"message": f"Failed to connect to WiFi: {e}"}), 500
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {e}"}), 500
 
 
 @main.route('/create_device', methods=['POST'])
