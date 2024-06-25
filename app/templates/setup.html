@@ -6,6 +6,7 @@
     <div class="container active" id="setupContainer">
         <div id="setupButtons">
             <button id="createDeviceButton">Create Device</button>
+            <button id="initialHandshakeButton">Initial Handshake</button>
             <button id="startServicesButton">Start Services</button>
             <button id="stopServicesButton">Stop Services</button>
             <button id="changeSpeedButton">Change Speed</button>
@@ -18,12 +19,15 @@
             <form id="createDeviceForm">
                 <label for="deviceId">Device ID:</label>
                 <input type="text" id="deviceId" name="deviceId" required>
-{#                <label for="deviceType">Device Type:</label>#}
-{#                <input type="text" id="deviceType" name="deviceType" required>#}
                 <button type="submit">Create Device</button>
             </form>
         </div>
 
+        <div id="initialHandshakeContainer" class="actionContainer" style="display: none;">
+            <h1>Initial Handshake</h1>
+            <button id="runInitialHandshake">Run Initial Handshake</button>
+            <div id="initialHandshakeOutput" class="terminal-out"></div>
+        </div>
 
         <div id="startServicesContainer" class="actionContainer" style="display: none;">
             <h1>Start Services</h1>
@@ -39,13 +43,11 @@
 
         <div id="changeSpeedContainer" class="actionContainer" style="display: none;">
             <h1>Change Speed</h1>
-            <!-- Add form or content for changing speed here -->
             <form id="changeSpeedForm">
                 <label for="speedValue">Speed:</label>
                 <input type="number" id="speedValue" name="speedValue" required>
                 <button type="submit">Update Speed</button>
             </form>
-            {#            <div id="changeSpeedOutput" class="terminal-out"></div>#}
         </div>
 
         <div id="createCronContainer" class="actionContainer" style="display: none;">
@@ -59,7 +61,7 @@
             </form>
             <div id="cronOutput" class="terminal-out"></div>
         </div>
-        <!-- Add this inside the container for the setup page -->
+
         <div id="connectWifiContainer" class="actionContainer" style="display: none;">
             <h1>Connect to WiFi</h1>
             <form id="connectWifiForm">
@@ -71,7 +73,6 @@
             </form>
             <div id="connectWifiOutput" class="terminal-out"></div>
         </div>
-
     </div>
     <script src="{{ url_for('static', filename='js/setup.js') }}"></script>
 {% endblock %}

@@ -4,7 +4,9 @@ import re
 import subprocess
 
 import cv2
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, Response
+import requests
+from flask import Blueprint, render_template, redirect, url_for, session, jsonify, request
+from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
 from app.models import Device, User, Configure
@@ -28,6 +30,52 @@ def generate_frames():
             frame = buffer.tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+
+def get_device_id_from_db():
+    """Retrieve and return the device_id from the SQLAlchemy database."""
+    device = Device.query.first()
+    return device.device_id if device else None
+
+
+def store_response_in_db(response_data):
+    """Store the response data in the 'user_info' table using SQLAlchemy."""
+    phone_number = f"{response_data['phone_code']}{response_data['phone']}"
+    user_info = User(
+        user_id=response_data['user_id'],
+        name=response_data['name'],
+        last_name=response_data['last_name'],
+        email=response_data['email'],
+        phone_number=phone_number,
+        access_token=response_data['access_token']
+    )
+    try:
+        db.session.merge(user_info)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify(f"Error while making the handshake API request: {e}"), 500
+
+
+def call_handshake_api_and_store_response(device_id):
+    """Call the handshake API and store the response in the database."""
+    api_url = "https://carfleet.ethansolution.com/api/auth/handshake"
+    json_data = {"device_id": device_id}
+
+    try:
+        response = requests.post(api_url, json=json_data)
+        if response.status_code == 201:
+            response_data = response.json()
+            if response_data.get("success"):
+                store_response_in_db(response_data["data"])
+                return jsonify({"message": "Handshake API response stored in the user_info table."}), 201
+            else:
+                return jsonify(
+                    {"message": f"Handshake API response indicates failure: {response_data['message']}"}), 400
+        else:
+            return jsonify({"message": f"Handshake API request failed: {response.text}"}), 400
+    except requests.RequestException as e:
+        return jsonify({"message": f"Error while making the handshake API request: {e}"}), 500
 
 
 @main.route('/')
@@ -104,8 +152,8 @@ def create_cron_job():
 
 @main.route('/video_feed')
 def video_feed():
-    # pass
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    pass
+    # return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 # API routes and other functions remain the same
@@ -148,7 +196,13 @@ def change_speed():
         db.session.add(config)
         db.session.commit()
 
-    return jsonify({'message': 'Speed updated successfully'}), 200
+    # Restart the facial1.service
+    try:
+        subprocess.run(["sudo", "systemctl", "restart", "facial1.service"], check=True)
+    except subprocess.CalledProcessError as e:
+        return jsonify({'error': 'Failed to restart facial1.service', 'details': str(e)}), 500
+
+    return jsonify({'message': 'Speed updated successfully and facial1.service restarted'}), 200
 
 
 @main.route('/connect_wifi', methods=['POST'])
@@ -199,3 +253,15 @@ def create_device():
         return jsonify({"message": "Device created successfully."})
     except Exception as e:
         return jsonify({"message": f"Failed to create device: {e}"}), 500
+
+
+@main.route('/init_handshake', methods=['POST'])
+def init_handshake():
+    try:
+        device_id = get_device_id_from_db()
+        if device_id:
+            return call_handshake_api_and_store_response(device_id)
+        else:
+            return jsonify({"message": "No device_id found in the database"}), 404
+    except Exception as e:
+        return jsonify({"message": str(e)}), 500

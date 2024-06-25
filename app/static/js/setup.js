@@ -3,6 +3,7 @@ $(document).ready(function () {
     const $stopServicesOutput = $('#stopServicesOutput');
     const $connectWifiOutput = $('#connectWifiOutput');
     const $cronOutput = $('#cronOutput');
+    const $initialHandshakeOutput = $('#initialHandshakeOutput');
 
     function getCurrentTimestamp() {
         const now = new Date();
@@ -18,6 +19,11 @@ $(document).ready(function () {
     $('#createDeviceButton').on('click', function () {
         $('.actionContainer').hide();
         $('#createDeviceContainer').show();
+    });
+
+    $('#initialHandshakeButton').on('click', function () {
+        $('.actionContainer').hide();
+        $('#initialHandshakeContainer').show();
     });
 
     $('#startServicesButton').on('click', function () {
@@ -158,7 +164,7 @@ $(document).ready(function () {
             url: '/create_device',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({deviceId: deviceId}),
+            data: JSON.stringify({device_id: deviceId}),
             success: function (response) {
                 alert(response.message);
             },
@@ -169,4 +175,22 @@ $(document).ready(function () {
         });
     });
 
+    // Handle initial handshake
+    $('#runInitialHandshake').on('click', function () {
+        appendOutput($initialHandshakeOutput, 'Running initial handshake...');
+
+        $.ajax({
+            url: '/init_handshake',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({}),
+            success: function (data) {
+                appendOutput($initialHandshakeOutput, data.message);
+            },
+            error: function (error) {
+                debugger
+                appendOutput($initialHandshakeOutput, 'An error occurred: ' + error.responseJSON.message);
+            }
+        });
+    });
 });

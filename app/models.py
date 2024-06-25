@@ -20,10 +20,11 @@ class Device(db.Model):
 class User(db.Model):
     __tablename__ = 'user_info'
     user_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), index=True, unique=True)
-    last_name = db.Column(db.String(64), index=True, unique=True)
-    phone_number = db.Column(db.String(64), index=True, unique=True)
-    email = db.Column(db.String(64), index=True, unique=True)
+    name = db.Column(db.String(64), nullable=False)
+    last_name = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
+    access_token = db.Column(db.String(255), nullable=False)
 
     # Add other columns relevant to the user table
 
@@ -46,3 +47,13 @@ class Configure(db.Model):
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+#
+# class UserInfo(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.String(64), unique=True, nullable=False)
+#     name = db.Column(db.String(64), nullable=False)
+#     last_name = db.Column(db.String(64), nullable=False)
+#     email = db.Column(db.String(120), unique=True, nullable=False)
+#     phone_number = db.Column(db.String(20), nullable=False)
+#     access_token = db.Column(db.String(255), nullable=False)
